@@ -55,7 +55,16 @@ describe("TranscriptStore", () => {
     assert.throws(() => store.deleteStudent(secondID), /Student not found/);
   });
 
- bugfix/BUG-102-duplicate-grade
+  test("BUG-101: deleting a student also removes stored grades", () => {
+    const studentID = store.addStudent("Mia");
+    store.addGrade(studentID, "CS360", 90);
+
+    store.deleteStudent(studentID);
+
+    assert.equal(store.getGrade(studentID, "CS360"), undefined);
+    assert.throws(() => store.getTranscript(studentID), /Student not found/);
+  });
+
   test("BUG-102: a second grade for the same student and course is rejected", () => {
     const studentID = store.addStudent("Omar");
     store.addGrade(studentID, "CS360", 70);
@@ -66,15 +75,6 @@ describe("TranscriptStore", () => {
     );
     assert.equal(store.getGrade(studentID, "CS360"), 70);
     assert.equal(store.changeGrade(studentID, "CS360", 95).grade, 95);
-  test("BUG-101: deleting a student also removes stored grades", () => {
-    const studentID = store.addStudent("Mia");
-    store.addGrade(studentID, "CS360", 90);
-
-    store.deleteStudent(studentID);
-
-    assert.equal(store.getGrade(studentID, "CS360"), undefined);
-    assert.throws(() => store.getTranscript(studentID), /Student not found/);
- main
   });
 
   test("BUG-103: name search trims whitespace and ignores case", () => {
